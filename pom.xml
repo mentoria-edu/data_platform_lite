@@ -1,0 +1,60 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.plataforma</groupId>
+  <artifactId>spark-runtime-deps</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <hudi.version>1.1.0</hudi.version>
+    <hadoop.version>3.4.0</hadoop.version>
+    <aws.sdk.version>1.12.700</aws.sdk.version>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+        <groupId>org.apache.hudi</groupId>
+        <artifactId>hudi-spark4.0-bundle_2.13</artifactId>
+        <version>1.1.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-aws</artifactId>
+      <version>${hadoop.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-bundle</artifactId>
+      <version>${aws.sdk.version}</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.6.1</version>
+        <executions>
+          <execution>
+            <id>export-jars</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/jars</outputDirectory>
+              <includeScope>runtime</includeScope>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
