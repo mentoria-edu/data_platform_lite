@@ -11,8 +11,8 @@ echo "========================================="
 echo "Creating necessary directories..."
 mkdir -p \
   ${SCRIPT_DIR}/conf \
-  ${SCRIPT_DIR}/data \
-  ${SCRIPT_DIR}/logs
+  ${SCRIPT_DIR}/scripts \
+  ${SCRIPT_DIR}/data
 
 echo "Directories ready."
 
@@ -78,8 +78,9 @@ echo ""
 echo "========================================="
 echo "Platform is running"
 echo "========================================="
-echo "Spark Master UI : http://localhost:8080"
-echo "Spark Worker UI : http://localhost:8081"
-echo "MinIO Console   : http://localhost:9001"
-echo "MinIO API       : http://localhost:9000"
+echo "Spark Master UI  : http://localhost:8083"
+echo "Spark Worker UI  : http://localhost:8084"
+echo "Spark History UI : http://localhost:18080"
+echo "MinIO Console    : http://localhost:9001"
+echo "MinIO API        : http://localhost:9000"
 echo "========================================="

@@ -6,14 +6,17 @@ services:
     image: spark-runtime:4.0.1
     container_name: spark-master
     hostname: spark-master
+    environment:
+      SPARK_MASTER_WEBUI_PORT: 8083
     ports:
       - "7077:7077"
-      - "8080:8080"
+      - "8083:8083"
     command: >
       /opt/spark/bin/spark-class
       org.apache.spark.deploy.master.Master
     volumes:
       - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
+      - ./scripts:/opt/scripts
     networks:
       - lite-platform-network
 
@@ -23,12 +26,30 @@ services:
     hostname: spark-worker-1
     depends_on:
       - spark-master
+    environment:
+      SPARK_WORKER_WEBUI_PORT: 8084
     ports:
-      - "8081:8081"
+      - "8084:8084"
     command: >
       /opt/spark/bin/spark-class
       org.apache.spark.deploy.worker.Worker
       spark://spark-master:7077
+    volumes:
+      - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
+    networks:
+      - lite-platform-network
+
+  spark-history:
+    image: spark-runtime:4.0.1
+    container_name: spark-history
+    hostname: spark-history
+    depends_on:
+      - spark-master
+    ports:
+      - "18080:18080"
+    command: >
+      /opt/spark/bin/spark-class
+      org.apache.spark.deploy.history.HistoryServer
     volumes:
       - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
     networks:
@@ -47,6 +68,26 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - ./data:/data
+    networks:
+      - lite-platform-network
+
+  minio-init:
+    image: minio/mc
+    container_name: minio-init   
+    depends_on:
+      - minio
+    entrypoint: /bin/sh
+    command:
+      - -c 
+      - |
+        echo "Waiting for MinIO...";
+        until mc alias set local http://minio:9000 \
+          minioadmin minioadmin; do
+          sleep 2;
+        done;
+
+        mc mb -p local/spark-logs || true
+        mc mb -p local/data-bureau || true
     networks:
       - lite-platform-network
 
