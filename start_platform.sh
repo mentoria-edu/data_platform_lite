@@ -40,7 +40,7 @@ echo "JARs generated in target/jars"
 
 echo ""
 echo "-----------------------------------------"
-echo "Step 2 - Docker image build (Spark runtime)"
+echo "Step 2 - Docker installed (Spark runtime)"
 echo "-----------------------------------------"
 
 if ! command -v docker >/dev/null 2>&1; then
@@ -48,26 +48,18 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
-docker build --no-cache -t spark-runtime:4.0.1 .
-
-if [ $? -ne 0 ]; then
-  echo "Docker build failed."
+if ! command -v docker-compose >/dev/null 2>&1 && ! docker compose version >/dev/null 2>&1; then
+  echo "ERROR: docker-compose not installed."
   exit 1
 fi
-
-echo "Docker image built: spark-runtime:4.0.1"
 
 echo ""
 echo "-----------------------------------------"
 echo "Step 3 - Platform startup (docker-compose)"
 echo "-----------------------------------------"
 
-if ! command -v docker-compose >/dev/null 2>&1 && ! docker compose version >/dev/null 2>&1; then
-  echo "ERROR: docker-compose not installed."
-  exit 1
-fi
 
-docker compose -f ${SCRIPT_DIR}/docker-compose.yml up -d
+docker compose -f ${SCRIPT_DIR}/docker-compose.yml up -d --build
 
 if [ $? -ne 0 ]; then
   echo "Docker compose failed."
