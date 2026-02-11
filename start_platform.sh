@@ -58,7 +58,6 @@ echo "-----------------------------------------"
 echo "Step 3 - Platform startup (docker-compose)"
 echo "-----------------------------------------"
 
-
 docker compose -f ${SCRIPT_DIR}/docker-compose.yml up -d --build
 
 if [ $? -ne 0 ]; then
