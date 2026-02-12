@@ -7,7 +7,6 @@ echo "========================================="
 echo "Spark Platform Bootstrap"
 echo "========================================="
 
-# Diretórios padrão
 echo "Creating necessary directories..."
 mkdir -p \
   ${SCRIPT_DIR}/conf \
