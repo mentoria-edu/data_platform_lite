@@ -23,7 +23,7 @@ After execution, the interfaces are accessible: Spark Master at http://localhost
 
 To submit jobs, simply run spark-submit inside the spark-master container, using the S3 configurations already predefined in spark-defaults.conf that point to MinIO.
 
-## Estrutura
+## Structure
 
 ```text
 spark-hudi-minio-platform/
