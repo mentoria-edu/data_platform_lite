@@ -23,35 +23,15 @@ services:
     networks:
       - lite-platform-network
 
-  spark-worker-1:
+  spark-worker:
     <<: *spark-base
-    container_name: spark-worker-1
-    hostname: spark-worker-1
     depends_on:
       - spark-master
     environment:
       SPARK_WORKER_WEBUI_PORT: 8084
+      SPARK_WORKER_OPTS: "-Dspark.worker.cleanup.enabled=true"
     ports:
-      - "8084:8084"
-    command: >
-      /opt/spark/bin/spark-class
-      org.apache.spark.deploy.worker.Worker
-      spark://spark-master:7077
-    volumes:
-      - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
-    networks:
-      - lite-platform-network
-
-  spark-worker-2:
-    <<: *spark-base
-    container_name: spark-worker-2
-    hostname: spark-worker-2
-    depends_on:
-      - spark-master
-    environment:
-      SPARK_WORKER_WEBUI_PORT: 8085
-    ports:
-      - "8085:8085"
+      - "8084-8090:8084"
     command: >
       /opt/spark/bin/spark-class
       org.apache.spark.deploy.worker.Worker
