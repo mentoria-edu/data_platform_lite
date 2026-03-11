@@ -2,7 +2,6 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-WORKERS=${1:-2}
 
 echo "========================================="
 echo "Spark Platform Bootstrap"
