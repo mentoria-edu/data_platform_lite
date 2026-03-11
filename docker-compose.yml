@@ -31,7 +31,9 @@ services:
       SPARK_WORKER_WEBUI_PORT: 8084
       SPARK_WORKER_OPTS: "-Dspark.worker.cleanup.enabled=true"
     ports:
-      - "8084-8090:8084"
+      - "8084-8096:8084"
+    deploy:
+      replicas: 2
     command: >
       /opt/spark/bin/spark-class
       org.apache.spark.deploy.worker.Worker
