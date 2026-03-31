@@ -12,7 +12,6 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 COMPOSE_FILE="${SCRIPT_DIR}/docker-compose.yml"
 
-
 echo "========================================="
 echo "        Spark Platform Bootstrap"
 echo "========================================="
@@ -26,6 +25,18 @@ mkdir -p \
   ${SCRIPT_DIR}/data
 
 echo "Directories ready."
+
+# ─── Docker installation check ────────────────────────────────────────────────
+
+echo ""
+echo "-----------------------------------------"
+echo "    Checking Docker installation"
+echo "-----------------------------------------"
+
+if ! command -v docker compose >/dev/null 2>&1; then
+  echo "[ERROR] Docker not installed."
+  exit 1
+fi
 
 # ─── Maven build ──────────────────────────────────────────────────────────────
 # Resolves dependencies and packages JARs required by the Spark runtime image.
@@ -46,18 +57,6 @@ mvn clean package
 
 echo "Maven build completed."
 echo "JARs generated in target/jars"
-
-# ─── Docker installation check ────────────────────────────────────────────────
-
-echo ""
-echo "-----------------------------------------"
-echo "    Checking Docker installation"
-echo "-----------------------------------------"
-
-if ! command -v docker >/dev/null 2>&1; then
-  echo "[ERROR] Docker not installed."
-  exit 1
-fi
 
 # ─── Container build ──────────────────────────────────────────────────────────
 
