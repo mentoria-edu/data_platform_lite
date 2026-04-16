@@ -1,7 +1,7 @@
 x-spark-base: &spark-base
   build:
-    context: .
-    dockerfile: Dockerfile
+    context: ../../
+    dockerfile: ./conf/docker/Dockerfile
   image: spark-hudi-minio
 
 services:
@@ -18,8 +18,7 @@ services:
       /opt/spark/bin/spark-class
       org.apache.spark.deploy.master.Master
     volumes:
-      - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
-      - ./scripts:/opt/scripts
+      - ../spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
     networks:
       - lite-platform-network
 
@@ -39,7 +38,7 @@ services:
       org.apache.spark.deploy.worker.Worker
       spark://spark-master:7077
     volumes:
-      - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
+      - ../spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
     networks:
       - lite-platform-network
 
@@ -55,7 +54,7 @@ services:
       /opt/spark/bin/spark-class
       org.apache.spark.deploy.history.HistoryServer
     volumes:
-      - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
+      - ../spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
     networks:
       - lite-platform-network
 
@@ -71,7 +70,7 @@ services:
       MINIO_ROOT_PASSWORD: minioadmin
     command: server /data --console-address ":9001"
     volumes:
-      - ./data:/data
+      - ../minio/data:/data
     networks:
       - lite-platform-network
 

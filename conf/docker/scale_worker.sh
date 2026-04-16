@@ -15,22 +15,31 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+cd ${SCRIPT_DIR}
+
 # Default number of workers used when --workers flag is not provided.
 MIN_WORKERS=1
 MAX_WORKERS=12
 SPARK_WORKERS=2
 
 # ─── Flag capture ─────────────────────────────────────────────────────────────
-
 while [[ $# -gt 0 ]]; do
   case $1 in
-    -w|--workers) 
-      if [[ -n "$2" ]]; then
+    -w|--workers)
+      # Ensures the value is a positive integer.
+      if [[ "$SPARK_WORKERS" =~ ^[0-9]+$ ]]; then
         SPARK_WORKERS="$2"
         shift 2
       else
-        shift 1
+        echo "[ERROR] The value of -w or --workers must be a positive integer."
+        exit 1
       fi
+    ;;
+    --down)
+      docker compose down
+      exit 0
     ;;
     *)
       echo "[ERROR] Unknown argument: $1"
@@ -40,13 +49,6 @@ while [[ $# -gt 0 ]]; do
 done
 
 # ─── Value validation ─────────────────────────────────────────────────────────
-
-# Ensures the value is a positive integer.
-if [[ ! "$SPARK_WORKERS" =~ ^[0-9]+$ ]]; then
-  echo "[ERROR] The value of -w or --workers must be a positive integer."
-  exit 1
-fi
-
 # Ensures the value is within the allowed range.
 if [[ ("$SPARK_WORKERS" -lt "$MIN_WORKERS" || "$SPARK_WORKERS" -gt "$MAX_WORKERS") ]]; then
   echo "[ERROR] The value of --workers must be between ${MIN_WORKERS} and ${MAX_WORKERS}."

@@ -14,14 +14,21 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-BUILD="${SCRIPT_DIR}/build.sh"
-SCALE_WORKER="${SCRIPT_DIR}/scale_worker.sh"
+MAVEN="${SCRIPT_DIR}/conf/maven/maven_setup.sh"
+MINIO="${SCRIPT_DIR}/conf/minio/minio_setup.sh"
+SCALE_WORKER="${SCRIPT_DIR}/conf/docker/scale_worker.sh"
 
-# ─── Build ────────────────────────────────────────────────────────────────────
-# Delegates to build.sh which runs Maven if target directory does not exist.
+# ─── MINIO ────────────────────────────────────────────────────────────────────
+# Delegates to minio_setup.sh which runs Minio if data directory does not exist.
 # Skips automatically if dependencies are already resolved.
 
-bash ${BUILD}
+bash ${MINIO}
+
+# ─── Maven ────────────────────────────────────────────────────────────────────
+# Delegates to maven_setup.sh which runs Maven if target directory does not exist.
+# Skips automatically if dependencies are already resolved.
+
+bash ${MAVEN}
 
 # ─── Scale ────────────────────────────────────────────────────────────────────
 # Delegates entirely to scale_worker.sh which handles flag parsing, validation,
