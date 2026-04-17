@@ -1,7 +1,7 @@
 x-spark-base: &spark-base
   build:
-    context: .
-    dockerfile: Dockerfile
+    context: ../../
+    dockerfile: ./conf/docker/Dockerfile
   image: spark-hudi-minio
 
 services:
@@ -18,27 +18,27 @@ services:
       /opt/spark/bin/spark-class
       org.apache.spark.deploy.master.Master
     volumes:
-      - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
-      - ./scripts:/opt/scripts
+      - ../spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
     networks:
       - lite-platform-network
 
-  spark-worker-1:
+  spark-worker:
     <<: *spark-base
-    container_name: spark-worker-1
-    hostname: spark-worker-1
     depends_on:
       - spark-master
     environment:
       SPARK_WORKER_WEBUI_PORT: 8084
+      SPARK_WORKER_OPTS: "-Dspark.worker.cleanup.enabled=true"
     ports:
-      - "8084:8084"
+      - "8084-8096:8084"
+    deploy:
+      replicas: 2
     command: >
       /opt/spark/bin/spark-class
       org.apache.spark.deploy.worker.Worker
       spark://spark-master:7077
     volumes:
-      - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
+      - ../spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
     networks:
       - lite-platform-network
 
@@ -54,7 +54,7 @@ services:
       /opt/spark/bin/spark-class
       org.apache.spark.deploy.history.HistoryServer
     volumes:
-      - ./conf/spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
+      - ../spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
     networks:
       - lite-platform-network
 
@@ -70,13 +70,13 @@ services:
       MINIO_ROOT_PASSWORD: minioadmin
     command: server /data --console-address ":9001"
     volumes:
-      - ./data:/data
+      - ../minio/data:/data
     networks:
       - lite-platform-network
 
   minio-init:
-    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
-    container_name: minio-init   
+    restart: "no"
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z  
     depends_on:
       - minio
     entrypoint: /bin/sh

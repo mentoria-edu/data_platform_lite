@@ -4,9 +4,9 @@ USER root
 
 RUN mkdir -p /opt/spark/external-jars
 
-COPY target/jars/* /opt/spark/external-jars/
+COPY ./conf/maven/target/jars/* /opt/spark/external-jars/
 
-COPY target/jars/*.jar /opt/spark/jars/
+COPY ./conf/maven/target/jars/*.jar /opt/spark/jars/
 
 ENV SPARK_EXTRA_CLASSPATH=/opt/spark/external-jars/*
 

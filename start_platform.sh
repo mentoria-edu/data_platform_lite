@@ -1,72 +1,44 @@
 #!/bin/bash
+# =============================================================================
+# Script:       start_platform.sh
+# Description:  Single entry point for managing the Spark platform lifecycle.
+#               Ensures Maven dependencies are resolved before delegating
+#               platform startup and worker scaling to scale_worker.sh.
+# Usage:        ./start_platform.sh [-w <number> | --workers <number>]
+#               -w, --workers  Number of Spark workers to run (between 1 and 12).
+#                              If omitted, platform starts with the default
+#                              defined in docker-compose.yml.
+# Dependencies: docker, docker compose, build.sh, scale_worker.sh
+# =============================================================================
+
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+MAVEN="${SCRIPT_DIR}/conf/maven/maven_setup.sh"
+MINIO="${SCRIPT_DIR}/conf/minio/minio_setup.sh"
+SCALE_WORKER="${SCRIPT_DIR}/conf/docker/scale_worker.sh"
 
-echo "========================================="
-echo "Spark Platform Bootstrap"
-echo "========================================="
+# ─── MINIO ────────────────────────────────────────────────────────────────────
+# Delegates to minio_setup.sh which runs Minio if data directory does not exist.
+# Skips automatically if dependencies are already resolved.
 
-echo "Creating necessary directories..."
-mkdir -p \
-  ${SCRIPT_DIR}/conf \
-  ${SCRIPT_DIR}/scripts \
-  ${SCRIPT_DIR}/data
+bash ${MINIO}
 
-echo "Directories ready."
+# ─── Maven ────────────────────────────────────────────────────────────────────
+# Delegates to maven_setup.sh which runs Maven if target directory does not exist.
+# Skips automatically if dependencies are already resolved.
 
-echo ""
-echo "-----------------------------------------"
-echo "Step 1 - Maven build (dependency resolution)"
-echo "-----------------------------------------"
+bash ${MAVEN}
 
-cd ${SCRIPT_DIR}
-
-if ! command -v mvn >/dev/null 2>&1; then
-  echo "ERROR: Maven not installed."
-  exit 1
-fi
-
-mvn clean package
-
-if [ $? -ne 0 ]; then
-  echo "Maven build failed."
-  exit 1
-fi
-
-echo "Maven build completed."
-echo "JARs generated in target/jars"
+# ─── Scale ────────────────────────────────────────────────────────────────────
+# Delegates entirely to scale_worker.sh which handles flag parsing, validation,
+# and platform lifecycle via docker compose up.
 
 echo ""
-echo "-----------------------------------------"
-echo "Step 2 - Docker installed (Spark runtime)"
-echo "-----------------------------------------"
-
-if ! command -v docker >/dev/null 2>&1; then
-  echo "ERROR: Docker not installed."
-  exit 1
-fi
-
-if ! command -v docker-compose >/dev/null 2>&1 && ! docker compose version >/dev/null 2>&1; then
-  echo "ERROR: docker-compose not installed."
-  exit 1
-fi
-
-echo ""
-echo "-----------------------------------------"
-echo "Step 3 - Platform startup (docker-compose)"
-echo "-----------------------------------------"
-
-docker compose -f ${SCRIPT_DIR}/docker-compose.yml up -d --build
-
-if [ $? -ne 0 ]; then
-  echo "Docker compose failed."
-  exit 1
-fi
-
+bash ${SCALE_WORKER} "$@"
 echo ""
 echo "========================================="
-echo "Platform is running"
+echo "  Platform is running"
 echo "========================================="
 echo "Spark Master UI  : http://localhost:8083"
 echo "Spark Worker UI  : http://localhost:8084"
